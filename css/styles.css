@@ -77,3 +77,6 @@
 body {
   font-family: "Karla";
 }
+.card {
+  background-color: #3c3c3f !important;
+}
