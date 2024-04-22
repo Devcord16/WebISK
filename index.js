@@ -7,19 +7,16 @@ const { JSDOM } = require("jsdom");
 
 let levelingData = [];
 
-const refreshLeaderboardData = () => {
-  axios.get("https://lurkr.gg/levels/1054414599945998416")
-    .then(({ data }) => {
-      const dom = new JSDOM(data)
-      levelingData = dom.window.document.querySelector(
-        "script#__NEXT_DATA__"
-      ).textContent;
-      levelingData = JSON.parse(levelingData);
-      levelingData = levelingData.props.pageProps;
-    })
-    .catch((error) => {
-      console.error("Error fetching HTML content:", error);
-    });
+const refreshLeaderboardData = async () => {
+  try {
+    const { data } = await axios.get("https://lurkr.gg/levels/1054414599945998416")
+    const dom = new JSDOM(data)
+    levelingData = dom.window.document.querySelector(
+      "script#__NEXT_DATA__"
+    ).textContent;
+    levelingData = JSON.parse(levelingData);
+    levelingData = levelingData.props.pageProps;
+  } catch(e) { console.log(e) }
 };
 
 refreshLeaderboardData();
