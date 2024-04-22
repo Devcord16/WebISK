@@ -1,14 +1,16 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
+const axios = require("axios")
 
 const { JSDOM } = require("jsdom");
 
 let levelingData = [];
 
 const refreshLeaderboardData = () => {
-  JSDOM.fromURL("https://lurkr.gg/levels/1054414599945998416")
-    .then((dom) => {
+  axios.get("https://lurkr.gg/levels/1054414599945998416")
+    .then(({ data }) => {
+      const dom = new JSDOM(data)
       levelingData = dom.window.document.querySelector(
         "script#__NEXT_DATA__"
       ).textContent;
