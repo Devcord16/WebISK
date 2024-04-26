@@ -1,15 +1,46 @@
 const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require("axios")
-
+const https = require("https")
 const { JSDOM } = require("jsdom");
 
 let levelingData = [];
 
+function https_fetch(url, path, method, headers, body, get_headers) {
+  if (body) headers["Content-Length"] = body.length
+  return new Promise((resolve, reject) => {
+      const req = https.request({
+          hostname: url,
+          path: path,
+          method: method,
+          headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0',
+              'DNT': '1',
+              'Sec-GPC': '1',
+              'Connection': 'keep-alive',
+              'Upgrade-Insecure-Requests': '1',
+              'Sec-Fetch-Dest': 'document',
+              'Sec-Fetch-Mode': 'navigate',
+              'Sec-Fetch-Site': 'none',
+              'Sec-Fetch-User': '?1',
+              'TE': 'trailers', 
+              ...headers
+          },
+      }, (res) => {
+          if (get_headers) resolve(res.headers)
+          let data = '';
+          res.on('data', (chunk) => data += chunk);
+          res.on('end', () => resolve(data));
+      });
+      if (body) req.write(body)
+      req.end();
+  });
+}
+
+
 const refreshLeaderboardData = () => {
-  axios.get("https://lurkr.gg/levels/1054414599945998416")
-    .then(({ data }) => {
+  https_fetch("lurkr.gg", "/levels/1054414599945998416", "GET")
+    .then((data) => {
       const dom = new JSDOM(data)
       levelingData = dom.window.document.querySelector(
         "script#__NEXT_DATA__"
@@ -17,18 +48,6 @@ const refreshLeaderboardData = () => {
       levelingData = JSON.parse(levelingData);
       levelingData = levelingData.props.pageProps;
     })
-    .catch((error) => {
-      console.error("Error fetching HTML content:", error);
-      const { data } = error.response
-      if(data) {
-        const dom = new JSDOM(data)
-        levelingData = dom.window.document.querySelector(
-          "script#__NEXT_DATA__"
-        ).textContent;
-        levelingData = JSON.parse(levelingData);
-        levelingData = levelingData.props.pageProps;
-      }
-    });
 };
 
 refreshLeaderboardData();
