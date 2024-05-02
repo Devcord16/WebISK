@@ -114,23 +114,41 @@
                   `#${user.user.discriminator}` : "") %>
                 </td>
 
-                <td
-                  style="
+                <td class="px-2">
+                  <span
+                    style="
     background-color: transparent !important;
     <%= levels[i] === 1 ? 'color: #f6e177;' :
        levels[i] === 2 ? 'color: #d0d8de;' :
        levels[i] === 3 ? 'color: #de9162;' : 'color: #aad9bb;' %>"
-                  class="px-2"
-                >
-                  <%= user.xp >= 1e6 ? (user.xp / 1e6).toFixed(1) + 'M' :
-                  user.xp >= 1e3 ? (user.xp / 1e3).toFixed(1) + 'K' : user.xp %>
+                  >
+                    <%= user.xp >= 1e6 ? (user.xp / 1e6).toFixed(1) + 'M' :
+                    user.xp >= 1e3 ? (user.xp / 1e3).toFixed(1) + 'K' : user.xp
+                    %>
+                  </span>
+                  <span class="d-none d-xl-inline"> / </span>
+                  <span
+                    class="d-none d-xl-inline"
+                    style="
+    background-color: transparent !important;
+    <%= levels[i] === 1 ? 'color: #f6e177;' :
+       levels[i] === 2 ? 'color: #d0d8de;' :
+       levels[i] === 3 ? 'color: #de9162;' : 'color: #aad9bb;' %>"
+                    ><%= user.nextLevelXp >= 1e6 ? (user.nextLevelXp /
+                    1e6).toFixed(1) + 'M' : user.nextLevelXp >= 1e3 ?
+                    (user.nextLevelXp / 1e3).toFixed(1) + 'K' : user.xp %>
+                  </span>
+                  (<%= parseInt(user.progress) %>%)
                 </td>
 
                 <td
                   style="background-color: transparent !important"
                   class="px-2"
                 >
-                  <%= user.messageCount %>
+                  <%= user.messageCount >= 1e6 ? (user.messageCount /
+                  1e6).toFixed(1) + 'M' : user.messageCount >= 1e3 ?
+                  (user.messageCount / 1e3).toFixed(1) + 'K' : user.messageCount
+                  %>
                 </td>
                 <td
                   style="

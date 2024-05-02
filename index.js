@@ -165,8 +165,6 @@ app.get("/leaderboard", function (req, res) {
     const originalIndex = levelingData.users.indexOf(temp.users[i]);
     levels.push(originalIndex + 1);
   }
-  console.log(temp.multipliers);
-  console.log(temp.roles);
   res.render("leaderboard", {
     title: "Leaderboard",
     levels: levels,
