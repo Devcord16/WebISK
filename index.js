@@ -4,11 +4,7 @@ const bodyParser = require("body-parser");
 const https = require("https");
 const { JSDOM } = require("jsdom");
 
-const leaderboardData = {
-  users: [],
-  roles: [],
-  multipliers: [],
-};
+let leaderboardData;
 
 function https_fetch(url, path, method, headers, body, get_headers) {
   if (body) headers["Content-Length"] = body.length;
@@ -48,77 +44,19 @@ function https_fetch(url, path, method, headers, body, get_headers) {
 const refreshLeaderboardData = async (page = 1) => {
   try {
     const data = await https_fetch(
-      "beta.lurkr.gg",
-      `/levels/sciencekingdom?page=${page}`,
+      "api.lurkr.gg",
+      `/v2/levels/sciencekingdom?page=${page}`,
       "GET"
     );
-    const dom = new JSDOM(data);
-  console.log(page)
-    let honoka =
-      dom.window.document.body.querySelectorAll("script[type]")[8].innerHTML;
-    honoka = honoka.replace("self.__next_f.push(", "").slice(0, -1);
-    honoka = JSON.parse(honoka);
-    honoka = honoka[1];
-    honoka = honoka.substring(2, honoka.length);
-    honoka = JSON.parse(honoka);
+    const honoka = JSON.parse(data)
 
-    // data lb user
-    const chika = honoka[3].children[1][3].children[0][3].children[0][3].data;
-
-    if (page === 1) leaderboardData.users = chika;
-    else leaderboardData.users.push(...chika);
-
-    // data lb role reward
-    const ayumu =
-      honoka[3].children[1][3].children[1][3].children[0][3].children[1][3]
-        .children;
-
-    if (page === 1)
-      leaderboardData.roles = ayumu.map((setsuna) => {
-        const yuu = {
-          level: setsuna[3].children[0][3].children,
-          color:
-            setsuna[3].children[1][3].children[0][3].children[0][3].style
-              .backgroundColor,
-          name: setsuna[3].children[1][3].children[0][3].children[1][3].children,
-        };
-        return yuu;
-      });
-
-    // data lb multiplier
-    const kanon =
-      honoka[3].children[1][3].children[1][3].children[1][3].children[1][3]
-        .children;
-
-    if (page === 1)
-      leaderboardData.multipliers = kanon.map((shiki) => {
-        const tomari = {};
-        tomari.multiplier = shiki[3].children[0][3].children;
-        const wien = shiki[3].children[1][3].children;
-        tomari.data = wien.map((chisato) => {
-          const sumire = {};
-          sumire.name = chisato[3].children[1][3].children;
-          const keke = chisato[3].children[0][3];
-          if (keke.style) {
-            sumire.type = "Role";
-            sumire.color = keke.style.backgroundColor;
-          } else if (
-            keke.src === "$17" ||
-            keke.src.src === "/_next/static/media/text.41c9f660.svg"
-          )
-            sumire.type = "Channel";
-          else if (
-            keke.src === "$18" ||
-            keke.src.src === "/_next/static/media/forum.192798a1.svg"
-          )
-            sumire.type = "Channel";
-          return sumire;
-        });
-        return tomari;
-      });
-
-    if (chika.length > 0) await refreshLeaderboardData(page + 1);
-  } catch (err) {}
+    if (page === 1) leaderboardData = honoka
+    else leaderboardData.levels.push(...honoka.levels)
+    
+    if (honoka.levels.length > 0) await refreshLeaderboardData(page + 1);
+  } catch (err) {
+    console.log(err)
+  }
 };
 
 const app = express();
