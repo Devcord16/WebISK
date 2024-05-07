@@ -48,14 +48,13 @@ const refreshLeaderboardData = async (page = 1) => {
       `/v2/levels/sciencekingdom?page=${page}`,
       "GET"
     );
-    const honoka = JSON.parse(data)
+    const honoka = JSON.parse(data);
+    if (page === 1) leaderboardData = honoka;
+    else leaderboardData.levels.push(...honoka.levels);
 
-    if (page === 1) leaderboardData = honoka
-    else leaderboardData.levels.push(...honoka.levels)
-    
     if (honoka.levels.length > 0) await refreshLeaderboardData(page + 1);
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
 };
 
@@ -81,7 +80,8 @@ app.get("/info", (req, res) => {
 
 app.get("/leaderboard", function (req, res) {
   let levelingData = leaderboardData;
-  let filteredData = levelingData.users || [];
+  let filteredData = levelingData.levels || [];
+  //console.log(levelingData);
 
   const pageCount = Math.ceil(filteredData.length / 10);
   let page = parseInt(req.query.p) || 1;
@@ -97,16 +97,13 @@ app.get("/leaderboard", function (req, res) {
   if (page > pageCount) {
     page = pageCount;
   }
-
   const temp = { ...levelingData }; // Use the spread operator to create a shallow copy
-  temp.users = filteredData.slice((page - 1) * 10, page * 10);
+  temp.levels = filteredData.slice((page - 1) * 10, page * 10);
   let levels = [];
-  for (let i = 0; i < temp.users.length; i++) {
-    const originalIndex = levelingData.users.indexOf(temp.users[i]);
+  for (let i = 0; i < temp.levels.length; i++) {
+    const originalIndex = levelingData.levels.indexOf(temp.levels[i]);
     levels.push(originalIndex + 1);
   }
-  console.log(temp.multipliers);
-  console.log(temp.roles);
   res.render("leaderboard", {
     title: "Leaderboard",
     levels: levels,

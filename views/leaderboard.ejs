@@ -82,7 +82,7 @@
               </tr>
             </thead>
             <tbody style="background-color: transparent">
-              <% levelingData.users.forEach((user, i) => { %>
+              <% levelingData.levels.forEach((user, i) => { %>
               <tr style="background-color: transparent">
                 <td
                   style="background-color: transparent !important"
@@ -183,12 +183,12 @@
                 [];levelingData.multipliers.forEach((multiplier,i) => { %>
                 <div class="mb-4">
                   <h4>
-                    <%= multiplier.data[0].type %> - x<%= multiplier.multiplier
-                    %>
+                    <%= multiplier.targets[0].name %> - x<%=
+                    multiplier.multiplier %>
                   </h4>
                   <ul class="text-start m-auto">
-                    <% multiplier.data.forEach(target => { %> <% if (
-                    multiplier.data[0].type == "Channel" ) { %>
+                    <% multiplier.targets.forEach(target => { %> <% if (
+                    multiplier.type == "Channel" ) { %>
                     <li>
                       <%- target.type === 0 ? `<svg
                         stroke="currentColor"
@@ -230,9 +230,9 @@
                         ></path></svg
                       >` : null %> <%= target.name %>
                     </li>
-                    <% } else if ( multiplier.data[0].type == "Role"&&
+                    <% } else if ( multiplier.type == "Role"&&
                     !addedNames[target.name] ) { %>
-                    <li style="color: <%= target.color.toString(16) %>">
+                    <li style="color: #<%= target.color.toString(16) %>">
                       @<%= target.name %>
                     </li>
                     <% addedNames[target.name] = true; %> <% } %> <% }) %>
@@ -251,11 +251,12 @@
               <h1 class="card-title mb-3">Role Rewards</h1>
               <div class="card-text fs-5">
                 <ul class="list-unstyled">
-                  <% levelingData.roles.forEach(reward => { %>
+                  <% levelingData.roleRewards.forEach((reward, i) => { %>
                   <li>
                     Level <%= reward.level %> -
-                    <span style="color: <%= reward.color %>"
-                      >@<%= reward.name %></span
+                    <span
+                      style="color: #<%= reward.roles[0].color.toString(16) %>"
+                      >@<%= reward.roles[0].name %></span
                     >
                   </li>
                   <% }) %>
