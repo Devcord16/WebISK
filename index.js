@@ -34,7 +34,7 @@ function https_fetch(url, path, method, headers, body, get_headers) {
         let data = "";
         res.on("data", (chunk) => (data += chunk));
         res.on("end", () => resolve(data));
-      }
+      },
     );
     if (body) req.write(body);
     req.end();
@@ -46,7 +46,7 @@ const refreshLeaderboardData = async (page = 1) => {
     const data = await https_fetch(
       "api.lurkr.gg",
       `/v2/levels/sciencekingdom?page=${page}`,
-      "GET"
+      "GET",
     );
     const honoka = JSON.parse(data);
     if (page === 1) leaderboardData = honoka;
@@ -67,7 +67,7 @@ app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
     extended: true,
-  })
+  }),
 );
 
 app.get("/", function (req, res) {
@@ -82,28 +82,31 @@ app.get("/leaderboard", function (req, res) {
   let levelingData = leaderboardData;
   let filteredData = levelingData.levels || [];
   //console.log(levelingData);
-
   const pageCount = Math.ceil(filteredData.length / 10);
   let page = parseInt(req.query.p) || 1;
-  const usernameToSearch = req.query.username;
-
-  if (usernameToSearch) {
-    // If a username is provided in the query, filter the data based on the username
-    filteredData = filteredData.filter(
-      (user) => user.username && user.username.includes(usernameToSearch)
-    );
-  }
+  const usernameToSearch = req.query.username || "";
 
   if (page > pageCount) {
     page = pageCount;
   }
-  const temp = { ...levelingData }; // Use the spread operator to create a shallow copy
+  let temp = { ...levelingData }; // Use the spread operator to create a shallow copy
   temp.levels = filteredData.slice((page - 1) * 10, page * 10);
   let levels = [];
   for (let i = 0; i < temp.levels.length; i++) {
     const originalIndex = levelingData.levels.indexOf(temp.levels[i]);
     levels.push(originalIndex + 1);
   }
+  if (usernameToSearch) {
+    // If a username is provided in the query, filter the data based on the username
+    temp.levels = levelingData.levels.filter(
+      (user) =>
+        user.user.username &&
+        user.user.username
+          .toLowerCase()
+          .includes(usernameToSearch.toLowerCase()),
+    );
+  }
+
   res.render("leaderboard", {
     title: "Leaderboard",
     levels: levels,
@@ -122,4 +125,4 @@ app.listen(port, async () => {
   console.log(`App is running on port ${port}`);
   await refreshLeaderboardData();
   setInterval(refreshLeaderboardData, 600000);
-});
+}); //test
